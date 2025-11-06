@@ -46,15 +46,19 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('/blogs', BlogController::class);
 });
-// user blog mangmnt
-Route::middleware(['auth', 'role:user'])->prefix('user')->name('user.')->group(function () {
-    Route::resource('blogs', \App\Http\Controllers\User\BlogController::class);
-});
 
-// User Dashboard
-Route::get('/user/dashboard', function () {
-    return view('user.dashboard');
-})->middleware(['auth', 'role:user'])->name('user.dashboard');
+// User Dashboard + Blog viewing
+Route::middleware(['auth', 'role:user'])
+    ->prefix('user')
+    ->name('user.')
+    ->group(function () {
+        Route::get('/dashboard', [\App\Http\Controllers\User\DashboardController::class, 'index'])
+            ->name('dashboard');
+
+        // Users can only view blogs, not create
+        Route::get('/blogs', [\App\Http\Controllers\User\BlogController::class, 'index'])->name('blogs.index');
+        Route::get('/blogs/{slug}', [\App\Http\Controllers\User\BlogController::class, 'show'])->name('blogs.show');
+    });
 
 // Auth routes (from Breeze)
 require __DIR__ . '/auth.php';

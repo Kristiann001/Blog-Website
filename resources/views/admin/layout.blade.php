@@ -17,7 +17,7 @@
 
             <nav class="flex-1 p-4 space-y-2">
                 <a href="{{ route('admin.dashboard') }}" class="block py-2 px-3 rounded hover:bg-indigo-600 {{ request()->routeIs('admin.dashboard') ? 'bg-indigo-600' : '' }}">
-                    Dashboard
+                    Home
                 </a>
                 <a href="#" class="block py-2 px-3 rounded hover:bg-indigo-600">Manage Blogs</a>
                 <a href="#" class="block py-2 px-3 rounded hover:bg-indigo-600">Users</a>
