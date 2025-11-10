@@ -13,7 +13,7 @@
       @forelse ($blogs as $blog)
         <div class="bg-white dark:bg-gray-800 shadow-md rounded-2xl overflow-hidden hover:-translate-y-2 transition-transform duration-300">
           <img 
-            src="https://source.unsplash.com/600x400/?{{ urlencode($blog->title) }}" 
+            src="{{ $blog->image ? asset('storage/' . $blog->image) : 'https://source.unsplash.com/600x400/?' . urlencode($blog->title) }}" 
             alt="{{ $blog->title }}" 
             class="w-full h-48 object-cover"
           >

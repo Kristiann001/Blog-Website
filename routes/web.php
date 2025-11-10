@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\BlogController;
 use App\Http\Controllers\User\BlogController as UserBlogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\CommentController;
+use App\Http\Controllers\Blogger\BlogController as BloggerBlogController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -21,6 +22,7 @@ use App\Http\Controllers\CommentController;
 // Public pages
 Route::view('/', 'home')->name('home');
 Route::view('/about', 'about')->name('about');
+Route::view('/services', 'services')->name('services');
 Route::get('/blogs', [BlogController::class, 'publicIndex'])->name('blogs'); // ✅ Use publicIndex()
 Route::get('/blogs/{slug}', [BlogController::class, 'show'])->name('blogs.show');
 Route::view('/contact', 'contact')->name('contact');
@@ -69,6 +71,18 @@ Route::middleware(['auth', 'role:user'])
         // Users can only view blogs, not create
         Route::get('/blogs', [\App\Http\Controllers\User\BlogController::class, 'index'])->name('blogs.index');
         Route::get('/blogs/{slug}', [\App\Http\Controllers\User\BlogController::class, 'show'])->name('blogs.show');
+    });
+
+    // ✅ Blogger Dashboard + Blog Management
+Route::middleware(['auth', 'role:blogger'])
+    ->prefix('blogger')
+    ->name('blogger.')
+    ->group(function () {
+        Route::get('/dashboard', function () {
+            return view('blogger.dashboard');
+        })->name('dashboard');
+       //Blogger's CRUD
+        Route::resource('blogs', \App\Http\Controllers\Blogger\BlogController::class);
     });
 
 // Auth routes (from Breeze)

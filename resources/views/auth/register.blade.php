@@ -23,6 +23,7 @@
            class="block mt-1 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
            <option value="">-- Select Role --</option>
            <option value="user">User</option>
+           <option value="blogger">Blogger</option>
            <option value="admin">Admin</option>
           </select>
          <x-input-error :messages="$errors->get('role')" class="mt-2" />

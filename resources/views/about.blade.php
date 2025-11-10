@@ -12,7 +12,7 @@
     </div>
 
     <div class="grid md:grid-cols-2 gap-10 items-center mb-16">
-        <img src="https://source.unsplash.com/600x400/?team,people" alt="Our Story" class="rounded-2xl shadow-md">
+        <img src="{{ asset('images/abt1.png') }}" alt="Our Story" class="rounded-2xl shadow-md">
         <div>
             <h3 class="text-2xl font-semibold mb-4 text-indigo-600">Our Story</h3>
             <p class="text-gray-700 leading-relaxed">
@@ -30,7 +30,7 @@
                 Whether it’s technology, lifestyle, or personal growth — we aim to publish content that sparks ideas and ignites curiosity.
             </p>
         </div>
-        <img src="https://source.unsplash.com/600x400/?mission,focus" alt="Our Mission" class="rounded-2xl shadow-md">
+        <img src="{{ asset('images/abt2.jpeg') }}" alt="Our Mission" class="rounded-2xl shadow-md">
     </div>
 </section>
 @endsection

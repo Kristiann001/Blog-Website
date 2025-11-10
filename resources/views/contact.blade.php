@@ -11,12 +11,12 @@
     <form class="space-y-6">
       <div>
         <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
-        <input type="text" id="name" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="John Doe">
+        <input type="text" id="name" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Enter Your Name">
       </div>
 
       <div>
         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
-        <input type="email" id="email" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="you@example.com">
+        <input type="email" id="email" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-400 focus:ring focus:ring-blue-200 focus:ring-opacity-50" placeholder="Enter Your Email">
       </div>
 
       <div>
