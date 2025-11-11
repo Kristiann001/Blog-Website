@@ -13,31 +13,30 @@
 
 <section id="blogs" class="py-16 max-w-6xl mx-auto px-6">
     <h3 class="text-3xl font-bold text-center mb-12 text-gray-800">Featured Posts</h3>
-    <div class="grid md:grid-cols-3 gap-8">
-        <div class="bg-white rounded-2xl shadow hover:shadow-lg transition">
-            <img src="https://source.unsplash.com/600x400/?writing" class="rounded-t-2xl w-full" alt="Blog Image">
-            <div class="p-6">
-                <h4 class="text-xl font-semibold mb-2 text-indigo-600">The Art of Writing</h4>
-                <p class="text-gray-600 mb-4">Tips and insights for improving your writing and storytelling craft.</p>
-                <a href="#" class="text-indigo-600 font-medium hover:underline">Read More →</a>
-            </div>
+
+    @if ($latestBlogs->count() > 0)
+        <div class="grid md:grid-cols-3 gap-8">
+            @foreach ($latestBlogs as $blog)
+                <div class="bg-white rounded-2xl shadow hover:shadow-lg transition">
+                    <img 
+                        src="{{ $blog->image ? asset('storage/' . $blog->image) : 'https://source.unsplash.com/600x400/?blog,writing' }}" 
+                        class="rounded-t-2xl w-full h-56 object-cover" 
+                        alt="{{ $blog->title }}"
+                    >
+                    <div class="p-6">
+                        <h4 class="text-xl font-semibold mb-2 text-indigo-600">{{ $blog->title }}</h4>
+                        <p class="text-gray-600 mb-4">
+                            {{ Str::limit(strip_tags($blog->content), 100) }}
+                        </p>
+                        <a href="{{ route('blogs') }}" class="text-indigo-600 font-medium hover:underline">
+                            Read More →
+                        </a>
+                    </div>
+                </div>
+            @endforeach
         </div>
-        <div class="bg-white rounded-2xl shadow hover:shadow-lg transition">
-            <img src="https://source.unsplash.com/600x400/?technology" class="rounded-t-2xl w-full" alt="Tech Blog">
-            <div class="p-6">
-                <h4 class="text-xl font-semibold mb-2 text-indigo-600">Tech Trends 2025</h4>
-                <p class="text-gray-600 mb-4">A look at the top technologies shaping our world this year.</p>
-                <a href="#" class="text-indigo-600 font-medium hover:underline">Read More →</a>
-            </div>
-        </div>
-        <div class="bg-white rounded-2xl shadow hover:shadow-lg transition">
-            <img src="https://source.unsplash.com/600x400/?lifestyle" class="rounded-t-2xl w-full" alt="Lifestyle Blog">
-            <div class="p-6">
-                <h4 class="text-xl font-semibold mb-2 text-indigo-600">Balanced Living</h4>
-                <p class="text-gray-600 mb-4">Practical advice for balancing work, health, and happiness.</p>
-                <a href="#" class="text-indigo-600 font-medium hover:underline">Read More →</a>
-            </div>
-        </div>
-    </div>
+    @else
+        <p class="text-center text-gray-600">No blogs available yet. Check back soon!</p>
+    @endif
 </section>
 @endsection

@@ -24,7 +24,7 @@
            <option value="">-- Select Role --</option>
            <option value="user">User</option>
            <option value="blogger">Blogger</option>
-           <option value="admin">Admin</option>
+           <!-- <option value="admin">Admin</option> -->
           </select>
          <x-input-error :messages="$errors->get('role')" class="mt-2" />
         </div>

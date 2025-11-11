@@ -9,6 +9,7 @@ use App\Http\Controllers\User\BlogController as UserBlogController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\Blogger\BlogController as BloggerBlogController;
+use App\Http\Controllers\HomeController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -20,7 +21,7 @@ use App\Http\Controllers\Blogger\BlogController as BloggerBlogController;
 
 // Public pages
 // Public pages
-Route::view('/', 'home')->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::view('/about', 'about')->name('about');
 Route::view('/services', 'services')->name('services');
 Route::get('/blogs', [BlogController::class, 'publicIndex'])->name('blogs'); // ✅ Use publicIndex()
