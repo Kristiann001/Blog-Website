@@ -23,23 +23,24 @@ class UserController extends Controller
     }
 
     // 🔄 Update user details (e.g., role)
-    public function update(Request $request, User $user)
-    {
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            'email' => 'required|email',
-            'role'  => 'required|in:admin,user',
-        ]);
+    public function update(Request $request, $id)
+   {
+    $user = User::findOrFail($id);
 
-        $user->update([
-            'name'  => $request->name,
-            'email' => $request->email,
-            'role'  => $request->role,
-        ]);
+    $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users,email,' . $user->id,
+        'role' => 'required|in:user,admin,blogger',
+    ]);
 
-        return redirect()->route('admin.users.index')
-            ->with('success', 'User updated successfully!');
-    }
+    $user->update([
+        'name' => $request->name,
+        'email' => $request->email,
+        'role' => $request->role,
+    ]);
+
+    return redirect()->route('admin.users.index')->with('success', 'User updated successfully.');
+   }
 
     // 🚫 Delete a user
     public function destroy(User $user)

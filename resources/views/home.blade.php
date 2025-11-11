@@ -7,7 +7,7 @@
     <div class="max-w-3xl mx-auto py-20">
         <h2 class="text-5xl font-bold mb-4">Welcome to MyBlogsite!</h2>
         <p class="text-lg mb-6">Discover inspiring stories, tech tutorials, and lifestyle articles curated for you.</p>
-        <a href="#blogs" class="bg-white text-indigo-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-200">Explore Blogs</a>
+        <a href="{{route('blogs')}}" class="bg-white text-indigo-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-200">Explore Blogs</a>
     </div>
 </section>
 
