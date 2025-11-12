@@ -25,7 +25,7 @@
 <div class="mt-8 bg-white dark:bg-gray-800 rounded-xl p-6 shadow">
     <h3 class="text-lg font-semibold mb-4 text-gray-700 dark:text-gray-200">Explore</h3>
     <div class="flex flex-wrap gap-3">
-        <a href="{{ route('blogs') }}" 
+        <a href="{{ route('publicblog.index') }}" 
            class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-md transition">Browse Blogs</a>
 
         <a href="{{ route('profile.edit') }}" 

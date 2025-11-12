@@ -36,7 +36,7 @@
                     <td class="px-6 py-3">{{ $blog->user->name ?? 'Unknown' }}</td>
                     <td class="px-6 py-3">{{ $blog->created_at->format('M d, Y') }}</td>
                     <td class="px-6 py-3 text-right flex justify-end gap-3">
-                        <a href="{{ route('blogs.show', $blog->slug) }}" 
+                        <a href="{{ route('publicblog.show', $blog->slug) }}" 
                            class="text-blue-500 hover:underline">View</a>
                         <a href="{{ route('admin.blogs.edit', $blog->id) }}" 
                            class="text-yellow-500 hover:underline">Edit</a>

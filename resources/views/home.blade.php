@@ -7,7 +7,7 @@
     <div class="max-w-3xl mx-auto py-20">
         <h2 class="text-5xl font-bold mb-4">Welcome to MyBlogsite!</h2>
         <p class="text-lg mb-6">Discover inspiring stories, tech tutorials, and lifestyle articles curated for you.</p>
-        <a href="{{route('blogs')}}" class="bg-white text-indigo-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-200">Explore Blogs</a>
+        <a href="{{route('publicblog.index')}}" class="bg-white text-indigo-600 px-6 py-3 rounded-full font-semibold hover:bg-gray-200">Explore Blogs</a>
     </div>
 </section>
 
@@ -28,7 +28,7 @@
                         <p class="text-gray-600 mb-4">
                             {{ Str::limit(strip_tags($blog->content), 100) }}
                         </p>
-                        <a href="{{ route('blogs') }}" class="text-indigo-600 font-medium hover:underline">
+                        <a href="{{ route('publicblog.index') }}" class="text-indigo-600 font-medium hover:underline">
                             Read More →
                         </a>
                     </div>
