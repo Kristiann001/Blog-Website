@@ -48,6 +48,12 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        // Redirect users based on role
+        return match ($user->role) {
+        'admin' => redirect()->route('admin.dashboard'),
+        'blogger' => redirect()->route('blogger.dashboard'),
+        'user' => redirect()->route('user.dashboard'),
+        default => redirect()->route('home'),
+        };
     }
 }
