@@ -33,23 +33,31 @@ function layout() {
     <div class="max-w-7xl mx-auto flex justify-between items-center">
 
         {{-- Left Links --}}
-        <div class="flex items-center space-x-6">
-            <a href="{{ route('home') }}" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">MyBlogSite</a>
-            <a href="{{ route('home') }}" 
-               class="{{ request()->routeIs('home') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-indigo-500' }}">
-               Home
-            </a>
-            <a href="{{ route('publicblog.index') }}" 
-               class="{{ request()->routeIs('publicblog*') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-indigo-500' }}">
-               Blogs
-            </a>
-            @auth
-                <a href="{{ route('user.dashboard') }}" 
-                   class="{{ request()->routeIs('user.dashboard') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-indigo-500' }}">
-                   Dashboard
-                </a>
-            @endauth
-        </div>
+<div class="flex items-center space-x-6">
+    <a href="{{ route('home') }}" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">MyBlogSite</a>
+    <a href="{{ route('home') }}" 
+       class="{{ request()->routeIs('home') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-indigo-500' }}">
+       Home
+    </a>
+    <a href="{{ route('publicblog.index') }}" 
+       class="{{ request()->routeIs('publicblog.*') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-indigo-500' }}">
+       Blogs
+    </a>
+
+    @auth
+        @php
+            $dashboardRoute = match(Auth::user()->role) {
+                'admin' => route('admin.dashboard'),
+                'blogger' => route('blogger.dashboard'),
+                default => route('user.dashboard'),
+            };
+        @endphp
+        <a href="{{ $dashboardRoute }}" 
+           class="{{ request()->routeIs('admin.dashboard', 'blogger.dashboard', 'user.dashboard') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-indigo-500' }}">
+           Dashboard
+        </a>
+    @endauth
+</div>
 
         {{-- Right Links --}}
         <div class="flex items-center space-x-4">
