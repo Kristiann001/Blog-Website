@@ -10,93 +10,80 @@
         Our Services
     </h2>
     <p class="text-center text-gray-700 dark:text-gray-200 max-w-3xl mx-auto mb-12">
-        Choose a service and pay securely with MPESA.
+        Browse and find the service you need.
     </p>
 
+    <!-- Search Bar -->
+    <div class="max-w-md mx-auto mb-12 relative">
+        <input
+            type="text"
+            id="serviceSearch"
+            placeholder="Search services..."
+            aria-label="Search services"
+            class="w-full pl-10 pr-4 py-3 rounded-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+        >
+        <div class="absolute left-3 top-3 text-gray-400 dark:text-gray-500 pointer-events-none">
+            🔍
+        </div>
+    </div>
+
     <!-- Services Grid -->
-    <div class="grid md:grid-cols-3 gap-8 mb-16">
+    <div id="servicesList" class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-8">
         @foreach($services as $service)
-        <div class="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-2xl transition transform hover:-translate-y-1 flex flex-col justify-between">
-            <div>
-                <div class="text-indigo-600 text-4xl mb-4">🛠️</div>
-                <h3 class="text-2xl font-semibold mb-2">{{ $service->title }}</h3>
-                <p class="text-gray-700 dark:text-gray-200 mb-4">{{ $service->description }}</p>
-            </div>
-            <div class="mt-4 flex flex-col gap-2">
+        <div class="service-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transform transition hover:-translate-y-1 flex flex-col">
+            @if($service->image)
+            <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" class="w-full h-48 object-cover rounded-lg mb-4">
+            @endif
+            <div class="flex-1">
+                <h3 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100">{{ $service->title }}</h3>
+                <p class="text-gray-700 dark:text-gray-300 mb-4">{{ $service->description }}</p>
                 <span class="inline-block bg-indigo-100 dark:bg-indigo-700 text-indigo-800 dark:text-white px-3 py-1 rounded-full font-semibold">
-                    KSh {{ number_format($service->price, 2) }}
+                    starting from <br> KSh {{ number_format($service->price, 2) }} per month
                 </span>
-                <form method="POST" action="{{ route('cart.add') }}">
-                    @csrf
-                    <input type="hidden" name="service_id" value="{{ $service->id }}">
-                    <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-500 transition">
-                        Add to Cart
-                    </button>
-                </form>
             </div>
         </div>
         @endforeach
     </div>
 
-    <!-- Cart & Checkout Section -->
-    <div class="bg-gray-100 dark:bg-gray-900 p-8 rounded-xl shadow-lg mb-16">
-        <h3 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-6">Your Cart</h3>
-        @php $cart = session()->get('cart', []); @endphp
+    <!-- No Results -->
+    <p id="noResults" class="text-center text-gray-500 dark:text-gray-400 mt-8 hidden">
+        No services found.
+    </p>
 
-        @if(count($cart) > 0)
-            <ul class="mb-6 space-y-3">
-                @foreach($cart as $item)
-                <li class="flex justify-between bg-white dark:bg-gray-800 p-4 rounded-lg shadow">
-                    <span>{{ $item['title'] }}</span>
-                    <span>KSh {{ number_format($item['price'], 2) }}</span>
-                </li>
-                @endforeach
-            </ul>
-
-            @php
-                $total = array_sum(array_column($cart, 'price'));
-            @endphp
-
-            <div class="flex justify-between items-center mb-4">
-                <span class="font-semibold text-lg">Total:</span>
-                <span class="font-bold text-xl text-indigo-600 dark:text-indigo-400">KSh {{ number_format($total, 2) }}</span>
-            </div>
-
-            <button id="mpesaCheckout" class="w-full bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-500 transition">
-                Pay with MPESA
-            </button>
-        @else
-            <p class="text-gray-700 dark:text-gray-200">Your cart is empty.</p>
-        @endif
+    <!-- Optional Pagination -->
+    <div class="mt-8">
+        {{-- Use paginate() in controller if you want pagination --}}
+        {{-- {{ $services->links() }} --}}
     </div>
-
 </div>
-
 @endsection
 
 @section('scripts')
 <script>
-document.getElementById('mpesaCheckout')?.addEventListener('click', function() {
-    fetch("{{ route('checkout.mpesa') }}", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRF-TOKEN": "{{ csrf_token() }}"
-        },
-        body: JSON.stringify({})
-    })
-    .then(response => response.json())
-    .then(data => {
-        if(data.message){
-            alert(data.message); // STK Push initiated
-        } else {
-            alert("Something went wrong.");
-        }
-    })
-    .catch(error => {
-        console.error(error);
-        alert("Failed to initiate payment.");
-    });
+const searchInput = document.getElementById('serviceSearch');
+const servicesList = document.getElementById('servicesList');
+const noResults = document.getElementById('noResults');
+
+let debounceTimer;
+searchInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        const query = this.value.trim().toLowerCase();
+        let hasResults = false;
+
+        servicesList.querySelectorAll('.service-card').forEach(card => {
+            const title = card.querySelector('h3').innerText.toLowerCase();
+            const desc = card.querySelector('p').innerText.toLowerCase();
+            if(title.includes(query) || desc.includes(query)) {
+                card.style.display = 'flex';
+                hasResults = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        noResults.classList.toggle('hidden', hasResults);
+    }, 200); // Debounce: 200ms
 });
 </script>
 @endsection
