@@ -14,4 +14,9 @@ class Contact extends Model
         'email',
         'message',
     ];
+    
+    public function replies()
+    {
+        return $this->hasMany(ContactReply::class);
+    }
 }

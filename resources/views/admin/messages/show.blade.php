@@ -23,10 +23,35 @@
         </div>
     </div>
 
-    <div class="mb-4">
+    <!-- Reply Form -->
+<div class="mt-10 bg-gray-100 dark:bg-gray-700 p-4 rounded">
+    <h3 class="text-lg font-semibold mb-3 text-gray-800 dark:text-gray-200">
+        Reply to this Message
+    </h3>
+
+    <form action="{{ route('admin.messages.reply', $message->id) }}" method="POST">
+        @csrf
+        <textarea 
+            name="reply" 
+            rows="4" 
+            class="w-full p-3 border rounded dark:bg-gray-800 dark:text-gray-100"
+            placeholder="Type your reply..."
+            required
+        ></textarea>
+
+        <button 
+            type="submit"
+            class="mt-3 px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-500"
+        >
+            Send Reply
+        </button>
+    </form>
+ </div>
+
+    <!-- <div class="mb-4">
         <strong class="text-gray-700 dark:text-gray-200">Received At:</strong>
         <span class="text-gray-800 dark:text-gray-100">{{ $message->created_at->format('d M Y, H:i') }}</span>
-    </div>
+    </div> -->
 
     <div class="flex gap-4 mt-6">
         <a href="{{ route('admin.messages.index') }}" 

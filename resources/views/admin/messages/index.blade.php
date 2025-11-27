@@ -25,9 +25,18 @@
                         <td class="px-4 py-2">{{ $msg->email }}</td>
                         <td class="px-4 py-2">{{ Str::limit($msg->message, 80, '...') }}</td>
                         <td class="px-4 py-2">{{ $msg->created_at->format('d M Y, H:i') }}</td>
+                        
                         <td class="px-4 py-2 space-x-2">
-    <a href="{{ route('admin.messages.show', $msg->id) }}" class="text-indigo-600 hover:underline">View</a>
 
+    {{-- View Message --}}
+    <a href="{{ route('admin.messages.show', $msg->id) }}" 
+       class="text-indigo-600 hover:underline">View</a>
+
+    {{-- Reply Button --}}
+    <a href="{{ route('admin.messages.show', $msg->id) }}#reply-form"
+       class="text-green-600 hover:underline">Reply</a>
+
+    {{-- Delete --}}
     <form action="{{ route('admin.messages.destroy', $msg->id) }}" method="POST" class="inline">
         @csrf
         @method('DELETE')
@@ -36,6 +45,7 @@
             Delete
         </button>
     </form>
+
 </td>
 
                     </tr>
