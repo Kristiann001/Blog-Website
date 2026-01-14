@@ -3,10 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'BarbzBlog')</title>
+    <title>@yield('title', 'Nexus Insight')</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
-        tailwind.config = { darkMode: 'class' };
+        tailwind.config = { 
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        };
     </script>
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
     <script>
@@ -57,8 +69,10 @@
         : 'bg-white dark:bg-gray-900 shadow-none'"
     class="fixed w-full top-0 z-20 transition-all duration-300"
 >
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">MyBlogsite!</h1>
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center text-sm md:text-base">
+        <h1 class="text-2xl font-black tracking-tight text-indigo-600 dark:text-indigo-400">
+            Nexus<span class="text-gray-900 dark:text-white">Insight</span>
+        </h1>
 
         <!-- Desktop Links -->
         <div class="hidden md:flex items-center space-x-8 font-medium">
@@ -198,8 +212,19 @@
 </main>
 
 <!-- Footer -->
-<footer class="bg-gray-900 text-gray-400 py-8 text-center mt-16">
-    <p>© 2025 MyBlogsite! All rights reserved.</p>
+<footer class="bg-white dark:bg-gray-950 border-t border-gray-100 dark:border-gray-800 py-12 modern-footer">
+    <div class="max-w-7xl mx-auto px-6 flex flex-col items-center">
+        <h2 class="text-xl font-black tracking-tight text-indigo-600 dark:text-indigo-400 mb-4">
+            NexusInsight
+        </h2>
+        <p class="text-gray-500 dark:text-gray-400 mb-6">Empowering minds through curated insights and innovation.</p>
+        <div class="flex space-x-6 mb-8 text-gray-400">
+            <a href="#" class="hover:text-indigo-600 transition">Twitter</a>
+            <a href="#" class="hover:text-indigo-600 transition">LinkedIn</a>
+            <a href="#" class="hover:text-indigo-600 transition">GitHub</a>
+        </div>
+        <p class="text-sm">© {{ date('Y') }} Nexus Insight. All rights reserved.</p>
+    </div>
 </footer>
 
 </body>

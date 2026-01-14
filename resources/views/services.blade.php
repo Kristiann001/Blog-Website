@@ -1,17 +1,23 @@
 @extends('layouts.app')
 
-@section('title', 'Our Services - MyBlogsite')
+@section('title', 'Our Services - Nexus Insight')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-6 py-16">
 
-    <!-- Heading -->
-    <h2 class="text-4xl md:text-5xl font-bold text-center text-indigo-600 dark:text-indigo-400 mb-6">
-        Our Services
-    </h2>
-    <p class="text-center text-gray-700 dark:text-gray-200 max-w-3xl mx-auto mb-12">
-        Browse and find the service you need.
-    </p>
+<section class="relative overflow-hidden pt-16 pb-20">
+    <div class="absolute inset-x-0 -top-40 -z-10 transform-gpu overflow-hidden blur-3xl sm:-top-80">
+        <div class="relative left-[calc(50%-11rem)] aspect-[1155/678] w-[36.125rem] -translate-x-1/2 rotate-[30deg] bg-gradient-to-tr from-[#9089fc] to-[#ff80b5] opacity-20 sm:left-[calc(50%-30rem)] sm:w-[72.1875rem]"></div>
+    </div>
+    <div class="max-w-4xl mx-auto px-6 text-center">
+        <h2 class="text-4xl md:text-5xl font-black tracking-tight text-gray-900 dark:text-white mb-6">
+            Our <span class="text-indigo-600 dark:text-indigo-400">Services</span>
+        </h2>
+        <p class="text-lg md:text-xl text-gray-600 dark:text-gray-400 leading-relaxed max-w-2xl mx-auto">
+            Scale your vision with our premium solutions. From creative insights to technical excellence, we provide the tools you need to succeed.
+        </p>
+    </div>
+</section>
 
     <!-- Search Bar -->
     <!-- <div class="max-w-md mx-auto mb-12 relative">
@@ -28,33 +34,46 @@
     </div> -->
 
     <!-- Services Grid -->
-    <div id="servicesList" class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-8">
+    <div id="servicesList" class="grid md:grid-cols-3 sm:grid-cols-2 grid-cols-1 gap-10 max-w-7xl mx-auto px-6 mb-24">
         @foreach($services as $service)
-        <div class="service-card bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg hover:shadow-2xl transform transition hover:-translate-y-1 flex flex-col">
-            @if($service->image)
-            <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" class="w-full h-48 object-cover rounded-lg mb-4">
-            @endif
-            <div class="flex-1">
-    <h3 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100">{{ $service->title }}</h3>
-    <p class="text-gray-700 dark:text-gray-300 mb-4">{{ $service->description }}</p>
-    <span class="inline-block bg-indigo-100 dark:bg-indigo-700 text-indigo-800 dark:text-white px-3 py-1 rounded-full font-semibold">
-        starting from <br> KSh {{ number_format($service->price, 2) }} per month
-    </span>
+        <div class="service-card group bg-white dark:bg-gray-800 rounded-3xl overflow-hidden border border-gray-100 dark:border-gray-700 hover:border-indigo-100 dark:hover:border-indigo-900 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col">
+            <div class="relative aspect-[16/10] overflow-hidden">
+                <img 
+                    src="{{ $service->image ? asset('storage/' . $service->image) : 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=800&auto=format&fit=crop' }}" 
+                    alt="{{ $service->title }}" 
+                    class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                >
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/40 to-transparent"></div>
+                <div class="absolute bottom-4 left-4">
+                    <span class="px-3 py-1 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md text-gray-900 dark:text-white text-xs font-bold rounded-full shadow-sm">
+                        KSh {{ number_format($service->price, 0) }}/mo
+                    </span>
+                </div>
+            </div>
+            <div class="p-8 flex-1 flex flex-col">
+                <h3 class="text-2xl font-bold mb-3 text-gray-900 dark:text-white group-hover:text-indigo-600 transition-colors">
+                    {{ $service->title }}
+                </h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-8 line-clamp-3 leading-relaxed flex-1">
+                    {{ $service->description }}
+                </p>
 
-    @auth
-        <form action="{{ route('services.subscribe', $service->id) }}" method="POST" class="mt-4">
-            @csrf
-            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-500">
-                Subscribe
-            </button>
-        </form>
-    @else
-        <a href="{{ route('login') }}" class="mt-4 inline-block w-full text-center bg-gray-600 text-white py-2 rounded hover:bg-gray-500">
-            Login to Subscribe
-        </a>
-    @endauth
-</div>
-
+                @auth
+                    <form action="{{ route('services.subscribe', $service->id) }}" method="POST" class="mt-auto">
+                        @csrf
+                        <button type="submit" class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 dark:shadow-none hover:bg-indigo-700 hover:-translate-y-1 transition duration-300 flex items-center justify-center group/btn">
+                            Get Started
+                            <svg class="w-5 h-5 ml-2 group-hover/btn:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/>
+                            </svg>
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="mt-auto block w-full text-center py-4 bg-gray-900 dark:bg-gray-700 text-white rounded-2xl font-bold hover:bg-gray-800 dark:hover:bg-gray-600 transition">
+                        Log in to Subscribe
+                    </a>
+                @endauth
+            </div>
         </div>
         @endforeach
     </div>

@@ -34,7 +34,7 @@ function layout() {
 
         {{-- Left Links --}}
 <div class="flex items-center space-x-6">
-    <a href="{{ route('home') }}" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">MyBlogSite</a>
+    <a href="{{ route('home') }}" class="text-xl font-bold text-indigo-600 dark:text-indigo-400">Nexus Insight</a>
     <a href="{{ route('home') }}" 
        class="{{ request()->routeIs('home') ? 'text-indigo-600 dark:text-indigo-400 font-semibold' : 'text-gray-700 dark:text-gray-300 hover:text-indigo-500' }}">
        Home
@@ -113,7 +113,7 @@ function layout() {
 
 {{-- Footer --}}
 <footer class="text-center py-6 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 mt-auto">
-    <p>&copy; {{ date('Y') }} MyBlogSite. All rights reserved.</p>
+    <p>&copy; {{ date('Y') }} Nexus Insight. All rights reserved.</p>
 </footer>
 
 </body>

@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'About - MyBlogsite')
+@section('title', 'About - Nexus Insight')
 
 @section('content')
 <section class="pt-12 pb-20 max-w-5xl mx-auto px-6">
     <div class="text-center mb-12">
-        <h2 class="text-4xl font-bold text-indigo-600 mb-4">About MyBlogsite</h2>
+        <h2 class="text-4xl font-bold text-indigo-600 mb-4">About Nexus Insight</h2>
         <p class="text-gray-600 text-lg max-w-2xl mx-auto">
-            MyBlogsite is a community-driven platform created to inspire, educate, and connect readers through stories, tutorials, and real-world insights.
+            Nexus Insight is a community-driven platform created to inspire, educate, and connect readers through stories, tutorials, and real-world insights.
         </p>
     </div>
 
@@ -16,7 +16,7 @@
         <div>
             <h3 class="text-2xl font-semibold mb-4 text-indigo-600">Our Story</h3>
             <p class="text-gray-700 leading-relaxed">
-                Founded in 2025, MyBlogsite started as a small idea — a space where passionate writers and creators could share their thoughts freely. 
+                Founded in 2025, Nexus Insight started as a small idea — a space where passionate writers and creators could share their thoughts freely. 
                 Over time, it has grown into a thriving online publication with contributors from all over the world.
             </p>
         </div>

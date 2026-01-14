@@ -36,7 +36,7 @@ Route::get('/blogs/{slug}', [PublicBlogController::class, 'show'])->name('public
 Route::get('/contact', [ContactController::class, 'index'])->name('contact');
 Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
-Route::post('/checkout/mpesa', [PaymentController::class, 'stkPush'])->name('checkout.mpesa');
+// Route::post('/checkout/mpesa', [PaymentController::class, 'stkPush'])->name('checkout.mpesa');
 
 Route::post('/cart/add', [CartController::class, 'add'])->name('cart.add');
 
@@ -59,12 +59,18 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Comment submission
     Route::post('/blogs/{blog}/comments', [CommentController::class, 'store'])->name('comments.store');
+});
 
+// Payments (Customers only)
+Route::middleware(['auth', 'verified', 'role:user'])->group(function () {
     // Stripe subscription routes
     Route::post('/services/{service}/subscribe', [SubscriptionController::class, 'checkout'])
         ->name('services.subscribe');
     Route::get('/services/subscription/success', [SubscriptionController::class, 'success'])
         ->name('services.subscription.success');
+
+    // Mpesa
+    Route::post('/checkout/mpesa', [PaymentController::class, 'stkPush'])->name('checkout.mpesa');
 });
 
 // --------------------

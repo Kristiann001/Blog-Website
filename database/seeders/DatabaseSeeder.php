@@ -12,6 +12,22 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Admin User
+        \App\Models\User::create([
+            'name' => 'Admin User',
+            'email' => 'admin@blog.com',
+            'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        // Regular User
+        \App\Models\User::create([
+            'name' => 'Test User',
+            'email' => 'user@blog.com',
+            'password' => bcrypt('password'),
+            'role' => 'user',
+        ]);
+
         $this->call([
           ServicesTableSeeder::class,
         ]);

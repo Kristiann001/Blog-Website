@@ -11,7 +11,7 @@
     <!-- Navbar -->
     <nav class="bg-white shadow-md fixed w-full top-0 z-10">
         <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-            <h1 class="text-2xl font-bold text-indigo-600">BarbzBlog</h1>
+            <h1 class="text-2xl font-bold text-indigo-600">Nexus Insight</h1>
             <ul class="flex space-x-6 text-gray-700">
                 <li><a href="#" class="hover:text-indigo-600">Dashboard</a></li>
                 <li><a href="#" class="hover:text-indigo-600">Blogs</a></li>
@@ -69,7 +69,7 @@
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-400 py-8 text-center">
-        <p>© 2025 BarbzBlog. All rights reserved.</p>
+        <p>© 2025 Nexus Insight. All rights reserved.</p>
     </footer>
 
 </body>

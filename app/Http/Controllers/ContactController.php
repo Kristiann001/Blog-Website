@@ -28,7 +28,7 @@ class ContactController extends Controller
         Contact::create($data);
 
         // email to admin
-        Mail::to('gathongomoses14@gmail.com')->send(new ContactFormMail($data));
+        Mail::to('originalkristiann@gmail.com')->send(new ContactFormMail($data));
 
         return back()->with('success', 'Your message has been sent successfully!');
     }
