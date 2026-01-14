@@ -35,12 +35,26 @@
             <img src="{{ asset('storage/' . $service->image) }}" alt="{{ $service->title }}" class="w-full h-48 object-cover rounded-lg mb-4">
             @endif
             <div class="flex-1">
-                <h3 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100">{{ $service->title }}</h3>
-                <p class="text-gray-700 dark:text-gray-300 mb-4">{{ $service->description }}</p>
-                <span class="inline-block bg-indigo-100 dark:bg-indigo-700 text-indigo-800 dark:text-white px-3 py-1 rounded-full font-semibold">
-                    starting from <br> KSh {{ number_format($service->price, 2) }} per month
-                </span>
-            </div>
+    <h3 class="text-2xl font-semibold mb-2 text-gray-900 dark:text-gray-100">{{ $service->title }}</h3>
+    <p class="text-gray-700 dark:text-gray-300 mb-4">{{ $service->description }}</p>
+    <span class="inline-block bg-indigo-100 dark:bg-indigo-700 text-indigo-800 dark:text-white px-3 py-1 rounded-full font-semibold">
+        starting from <br> KSh {{ number_format($service->price, 2) }} per month
+    </span>
+
+    @auth
+        <form action="{{ route('services.subscribe', $service->id) }}" method="POST" class="mt-4">
+            @csrf
+            <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-500">
+                Subscribe
+            </button>
+        </form>
+    @else
+        <a href="{{ route('login') }}" class="mt-4 inline-block w-full text-center bg-gray-600 text-white py-2 rounded hover:bg-gray-500">
+            Login to Subscribe
+        </a>
+    @endauth
+</div>
+
         </div>
         @endforeach
     </div>

@@ -13,6 +13,8 @@ use App\Http\Controllers\ContactController;
 use App\Http\Controllers\PublicBlogController;
 use App\Http\Controllers\ServicesController;
 use App\Http\Controllers\ContactReplyController;
+use App\Http\Controllers\SubscriptionController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +59,12 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // Comment submission
     Route::post('/blogs/{blog}/comments', [CommentController::class, 'store'])->name('comments.store');
+
+    // Stripe subscription routes
+    Route::post('/services/{service}/subscribe', [SubscriptionController::class, 'checkout'])
+        ->name('services.subscribe');
+    Route::get('/services/subscription/success', [SubscriptionController::class, 'success'])
+        ->name('services.subscription.success');
 });
 
 // --------------------
@@ -83,7 +91,7 @@ Route::middleware(['auth', 'role:admin'])
 
         Route::post('/messages/{contact}/reply', [ContactReplyController::class, 'store'])
     ->name('admin.messages.reply');
-    
+
     Route::post('/messages/{message}/reply', [MessageController::class, 'reply'])
         ->name('messages.reply');
 
