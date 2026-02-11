@@ -44,18 +44,23 @@ class User extends Authenticatable
     ];
 
     /**
-     * Relationship: A user can have many blogs.
+     * Relationship: A user can have many orders.
      */
-    public function blogs()
+    public function posts()
     {
-        return $this->hasMany(Blog::class);
+        return $this->hasMany(Post::class);
     }
 
-    /**
-     * Relationship: A user can have many comments.
-     */
-    public function comments()
+    public function payments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Payment::class);
+    }
+
+    public function hasPurchased(Post $post)
+    {
+        return $this->payments()
+            ->where('post_id', $post->id)
+            ->where('status', 'completed')
+            ->exists();
     }
 }

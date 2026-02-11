@@ -7,15 +7,15 @@ use App\Models\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class BlogController extends Controller
 {
     public function index()
-   {
-    $blogs = \App\Models\Blog::with('user')->latest()->paginate(10);
-    return view('admin.blogs.index', compact('blogs'));
-   }
-
+    {
+        $blogs = Blog::latest()->get();
+        return view('admin.blogs.index', compact('blogs'));
+    }
 
     public function create()
     {
@@ -27,12 +27,12 @@ class BlogController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('blogs', 'public');
+            $imagePath = $request->file('image')->store('blogs', 'public');
         }
 
         Blog::create([
@@ -56,19 +56,16 @@ class BlogController extends Controller
         $request->validate([
             'title' => 'required|string|max:255',
             'content' => 'required|string',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ]);
 
         $imagePath = $blog->image;
 
         if ($request->hasFile('image')) {
-        // delete old image if exists
-        if ($blog->image && \Storage::disk('public')->exists($blog->image)) {
-            \Storage::disk('public')->delete($blog->image);
-        }
-
-        // store new one
-        $imagePath = $request->file('image')->store('blogs', 'public');
+            if ($blog->image) {
+                Storage::disk('public')->delete($blog->image);
+            }
+            $imagePath = $request->file('image')->store('blogs', 'public');
         }
 
         $blog->update([
@@ -83,18 +80,17 @@ class BlogController extends Controller
 
     public function destroy(Blog $blog)
     {
-    if ($blog->image && \Storage::disk('public')->exists($blog->image)) {
-        \Storage::disk('public')->delete($blog->image);
+        if ($blog->image) {
+            Storage::disk('public')->delete($blog->image);
+        }
+        $blog->delete();
+
+        return redirect()->route('admin.blogs.index')->with('success', 'Blog deleted.');
     }
 
-    $blog->delete();
-    return redirect()->route('admin.blogs.index')->with('success', 'Blog deleted.');
-    }
-
-
-    public function publicIndex()
+    public function show($slug)
     {
-       $blogs = Blog::latest()->get();
-        return view('blogs', compact('blogs'));
+        $blog = Blog::where('slug', $slug)->firstOrFail();
+        return view('blog-details', compact('blog'));
     }
 }

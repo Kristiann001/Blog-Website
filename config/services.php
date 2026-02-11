@@ -36,4 +36,12 @@ return [
         'secret' => env('STRIPE_SECRET'),
     ],
 
+    'mpesa' => [
+        'env' => env('MPESA_ENV', 'sandbox'),
+        'key' => env('MPESA_CONSUMER_KEY'),
+        'secret' => env('MPESA_CONSUMER_SECRET'),
+        'shortcode' => env('MPESA_SHORTCODE'),
+        'passkey' => env('MPESA_PASSKEY'),
+    ],
+
 ];
