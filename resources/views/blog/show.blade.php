@@ -28,34 +28,26 @@
             </div>
         @endif
 
-        <!-- Top Navbar -->
-        <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <div class="flex items-center space-x-6 uppercase text-[9px] font-bold tracking-[0.4em] text-gray-400">
-                        <a href="{{ route('blog.index') }}" class="text-gray-900 border-b-2 border-cyan-500 pb-1">Zenith Stories</a>
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <!-- Unified Navbar -->
+        @include('partials.blog-navigation')
 
-        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
             <article class="bg-white shadow-sm border border-gray-100 overflow-hidden">
                 @if($post->featured_image)
-                    <img src="{{ asset('storage/' . $post->featured_image) }}" class="w-full h-[500px] object-cover">
+                    <img src="{{ asset('storage/' . $post->featured_image) }}" class="w-full h-[300px] md:h-[500px] object-cover">
                 @endif
 
-                <div class="p-12 text-center">
-                    <span class="text-cyan-500 text-xs font-bold tracking-widest uppercase">{{ $post->category->name ?? 'General' }}</span>
-                    <h1 class="text-4xl font-bold uppercase mt-6 mb-4 tracking-tight leading-tight">{{ $post->title }}</h1>
+                <div class="p-6 md:p-12 text-center">
+                    <span class="text-cyan-500 text-[10px] md:text-xs font-bold tracking-widest uppercase">{{ $post->category->name ?? 'General' }}</span>
+                    <h1 class="text-2xl md:text-4xl font-bold uppercase mt-4 md:mt-6 mb-4 tracking-tight leading-tight">{{ $post->title }}</h1>
                     
-                    <div class="flex items-center justify-center space-x-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-12">
+                    <div class="flex flex-wrap items-center justify-center space-x-2 text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8 md:mb-12">
                         <span>By: <span class="text-gray-900">{{ $post->user->name }}</span></span>
                         <span>•</span>
                         <span>{{ $post->published_at ? $post->published_at->format('M d, Y') : 'Draft' }}</span>
                         @if($post->price > 0)
-                            <span>•</span>
-                            <span class="text-cyan-500">Ksh {{ number_format($post->price) }}</span>
+                            <span class="hidden md:inline">•</span>
+                            <span class="w-full md:w-auto mt-2 md:mt-0 text-cyan-500">Ksh {{ number_format($post->price) }}</span>
                         @endif
                     </div>
 

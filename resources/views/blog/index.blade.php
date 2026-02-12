@@ -20,43 +20,20 @@
         </style>
     </head>
     <body class="bg-gray-50 text-gray-900 antialiased">
-        <!-- Top Navbar -->
-        <nav class="bg-white border-b border-gray-100 sticky top-0 z-50">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex justify-between h-16 items-center">
-                    <div class="flex items-center space-x-6 uppercase text-[9px] font-bold tracking-[0.4em] text-gray-400">
-                        <a href="{{ route('blog.index') }}" class="text-gray-900 border-b-2 border-cyan-500 pb-1">Zenith Stories</a>
-                    </div>
-                    
-                    <div class="hidden md:flex space-x-12 uppercase text-[10px] font-bold tracking-[0.3em] text-gray-500">
-                        @foreach($categories as $category)
-                            <a href="?category={{ $category->slug }}" class="hover:text-cyan-500 transition">{{ $category->name }}</a>
-                        @endforeach
-                    </div>
-
-                    <div class="flex items-center space-x-8 text-gray-400">
-                        @auth
-                            <a href="{{ route('dashboard') }}" class="text-cyan-500 uppercase text-[10px] font-bold tracking-widest border border-cyan-500/20 px-4 py-2 rounded-full hover:bg-cyan-500 hover:text-white transition">Dashboard</a>
-                        @else
-                            <a href="{{ route('login') }}" class="hover:text-cyan-500 uppercase text-[10px] font-bold tracking-widest">Login</a>
-                            <a href="{{ route('register') }}" class="bg-gray-900 text-white uppercase text-[10px] font-bold tracking-widest px-6 py-2 rounded-full hover:bg-cyan-500 transition">Join</a>
-                        @endauth
-                    </div>
-                </div>
-            </div>
-        </nav>
+        <!-- Unified Navbar -->
+        @include('partials.blog-navigation')
 
         <!-- Huge Header Section -->
-        <header class="relative h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden">
+        <header class="relative h-[60vh] md:h-[80vh] flex flex-col items-center justify-center text-center overflow-hidden">
             <img src="https://images.unsplash.com/photo-1432821596592-e2c18b78144f?auto=format&fit=crop&w=1920&q=80" class="absolute inset-0 w-full h-full object-cover scale-105 transition-transform duration-[10s] hover:scale-100">
             <div class="absolute inset-0 hero-gradient"></div>
             <div class="relative z-10 px-4">
-                <h1 class="brand-font text-8xl md:text-9xl text-white font-bold tracking-tighter drop-shadow-2xl">Zenith</h1>
-                <p class="uppercase text-white tracking-[1em] font-medium mt-6 text-[10px] pl-4 opacity-70">Premium Editorial Stories</p>
+                <h1 class="brand-font text-6xl md:text-9xl text-white font-bold tracking-tighter drop-shadow-2xl">Zenith</h1>
+                <p class="uppercase text-white tracking-[0.5em] md:tracking-[1em] font-medium mt-4 md:mt-6 text-[8px] md:text-[10px] pl-2 md:pl-4 opacity-70">Premium Editorial Stories</p>
             </div>
         </header>
 
-        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 relative z-20">
+        <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 md:-mt-20 relative z-20">
             <!-- Featured Category Cards -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
                 @php 
