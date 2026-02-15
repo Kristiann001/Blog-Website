@@ -1,117 +1,153 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
-    <head>
-        <meta charset="utf-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>{{ $post->title }} - BLOG</title>
-        @vite(['resources/css/app.css', 'resources/js/app.js'])
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Outfit:wght@300;400;500;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-        <style>
-            body { font-family: 'Outfit', sans-serif; }
-            .brand-font { font-family: 'Cormorant Garamond', serif; }
-            .glass-dark { background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
-            .premium-text { background: linear-gradient(to right, #22d3ee, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        </style>
-    </head>
-    <body class="bg-gray-50 text-gray-900 antialiased">
-        @if(session('success'))
-            <div class="bg-green-500 text-white p-4 text-center sticky top-16 z-50">
-                {{ session('success') }}
+@extends('layouts.app')
+
+@section('title', $post->title . ' — Zenith Stories')
+
+@section('content')
+
+<article class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-16 animate-fade-up">
+
+    {{-- Flash messages --}}
+    @if(session('success'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+             x-transition class="mb-6 bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-check-circle"></i>
+                <span>{{ session('success') }}</span>
             </div>
-        @endif
-        @if(session('error'))
-            <div class="bg-red-500 text-white p-4 text-center sticky top-16 z-50">
-                {{ session('error') }}
+            <button @click="show = false" class="text-green-600 hover:text-green-800"><i class="fas fa-times"></i></button>
+        </div>
+    @endif
+    @if(session('error'))
+        <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 5000)"
+             x-transition class="mb-6 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm flex items-center justify-between">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>{{ session('error') }}</span>
             </div>
-        @endif
+            <button @click="show = false" class="text-red-600 hover:text-red-800"><i class="fas fa-times"></i></button>
+        </div>
+    @endif
 
-        <!-- Unified Navbar -->
-        @include('partials.blog-navigation')
+    {{-- Featured Image --}}
+    @if($post->featured_image)
+        <div class="relative rounded-2xl overflow-hidden mb-8 shadow-lg card-zoom">
+            <img src="{{ asset('storage/' . $post->featured_image) }}"
+                 alt="{{ $post->title }}"
+                 class="w-full h-auto max-h-[500px] object-cover">
+        </div>
+    @endif
 
-        <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-            <article class="bg-white shadow-sm border border-gray-100 overflow-hidden">
-                @if($post->featured_image)
-                    <img src="{{ asset('storage/' . $post->featured_image) }}" class="w-full h-[300px] md:h-[500px] object-cover">
-                @endif
+    {{-- Header --}}
+    <header class="mb-8">
+        <div class="flex items-center space-x-3 mb-4">
+            <span class="text-[10px] font-bold tracking-[0.2em] uppercase text-cyan-600 bg-cyan-50 px-2.5 py-1 rounded-md">
+                {{ $post->category->name ?? 'General' }}
+            </span>
+            @if($post->price > 0)
+                <span class="text-[10px] font-bold tracking-wider uppercase text-amber-700 bg-amber-50 px-2.5 py-1 rounded-md">
+                    <i class="fas fa-lock text-[8px] mr-1"></i> Premium · Ksh {{ number_format($post->price) }}
+                </span>
+            @endif
+        </div>
 
-                <div class="p-6 md:p-12 text-center">
-                    <span class="text-cyan-500 text-[10px] md:text-xs font-bold tracking-widest uppercase">{{ $post->category->name ?? 'General' }}</span>
-                    <h1 class="text-2xl md:text-4xl font-bold uppercase mt-4 md:mt-6 mb-4 tracking-tight leading-tight">{{ $post->title }}</h1>
-                    
-                    <div class="flex flex-wrap items-center justify-center space-x-2 text-[9px] md:text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-8 md:mb-12">
-                        <span>By: <span class="text-gray-900">{{ $post->user->name }}</span></span>
-                        <span>•</span>
-                        <span>{{ $post->published_at ? $post->published_at->format('M d, Y') : 'Draft' }}</span>
-                        @if($post->price > 0)
-                            <span class="hidden md:inline">•</span>
-                            <span class="w-full md:w-auto mt-2 md:mt-0 text-cyan-500">Ksh {{ number_format($post->price) }}</span>
-                        @endif
-                    </div>
+        <h1 class="text-3xl sm:text-4xl md:text-[2.75rem] font-extrabold text-gray-900 leading-tight tracking-tight mb-5">
+            {{ $post->title }}
+        </h1>
 
-                    <div class="prose max-w-none text-gray-700 leading-loose text-left mb-12">
-                        @php
-                            $isPremium = $post->price > 0;
-                            $hasPurchased = auth()->check() && auth()->user()->hasPurchased($post);
-                            $isAdmin = auth()->check() && auth()->user()->role === 'admin';
-                        @endphp
+        <div class="flex items-center space-x-3 text-sm text-gray-500">
+            <div class="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center">
+                <i class="fas fa-user text-xs text-gray-400"></i>
+            </div>
+            <div>
+                <span class="font-semibold text-gray-800">{{ $post->user->name }}</span>
+                <span class="mx-1.5 text-gray-300">&middot;</span>
+                <time>{{ $post->published_at ? $post->published_at->format('F d, Y') : 'Draft' }}</time>
+            </div>
+        </div>
+    </header>
 
-                        @if(!$isPremium || $hasPurchased || $isAdmin)
-                            {!! nl2br(e($post->content)) !!}
-                        @else
-                            <div class="relative">
-                                <div class="text-gray-400 select-none blur-sm">
-                                    {!! nl2br(e(Str::limit($post->content, 300))) !!}
+    <hr class="border-gray-100 mb-8">
+
+    {{-- Body --}}
+    <div class="prose prose-lg max-w-none text-gray-700 leading-relaxed">
+        @php
+            $isPremium = $post->price > 0;
+            $hasPurchased = auth()->check() && auth()->user()->hasPurchased($post);
+            $isAdmin = auth()->check() && auth()->user()->role === 'admin';
+        @endphp
+
+        @if(!$isPremium || $hasPurchased || $isAdmin)
+            <div class="article-body space-y-5">
+                {!! nl2br(e($post->content)) !!}
+            </div>
+        @else
+            {{-- Locked content --}}
+            <div class="relative">
+                <div class="text-gray-300 blur-[6px] select-none pointer-events-none leading-relaxed">
+                    {!! nl2br(e(Str::limit($post->content, 400))) !!}
+                </div>
+
+                <div class="absolute inset-0 flex items-center justify-center p-4">
+                    <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 p-8 md:p-10 max-w-sm w-full text-center">
+                        <div class="w-14 h-14 bg-gray-900 rounded-2xl flex items-center justify-center mx-auto mb-5 rotate-3">
+                            <i class="fas fa-lock text-cyan-400 text-lg"></i>
+                        </div>
+
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">Premium Story</h3>
+                        <p class="text-sm text-gray-500 mb-6 leading-relaxed">Support our editorial team with a one-time contribution to unlock this story.</p>
+
+                        @auth
+                            @if(auth()->user()->role === 'admin')
+                                <div class="bg-cyan-50 border border-cyan-100 rounded-xl p-4">
+                                    <p class="text-xs font-bold text-cyan-700 uppercase tracking-wider">Admin access granted</p>
                                 </div>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <div class="glass-dark p-8 shadow-2xl text-center max-w-sm rounded-2xl border border-white/10">
-                                        <h3 class="text-2xl font-bold uppercase mb-4 premium-text">Premium Content</h3>
-                                        <p class="text-sm text-gray-300 mb-6 leading-relaxed">This exclusive story requires a one-time purchase to unlock full lifetime access.</p>
-                                        
-                                        @auth
-                                            @if(auth()->user()->role === 'admin')
-                                                <div class="mt-8 p-6 glass-dark rounded-xl border border-white/10 text-center">
-                                                    <p class="text-[10px] font-bold uppercase tracking-[0.3em] text-cyan-400">Admin Preview Mode</p>
-                                                    <p class="text-[9px] text-gray-400 mt-2 uppercase tracking-widest">You have full access to this content as an administrator.</p>
-                                                </div>
-                                            @else
-                                                <form action="{{ route('payment.initiate', $post) }}" method="POST" class="mt-8">
-                                                    @csrf
-                                                    <div class="mb-6">
-                                                        <input type="text" name="phone_number" placeholder="2547XXXXXXXX" class="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-4 text-white text-sm focus:outline-none focus:border-cyan-400 transition placeholder:text-gray-600 text-center" required>
-                                                        <p class="text-[9px] text-gray-500 mt-3 uppercase tracking-widest">Enter M-Pesa number in 254... format</p>
-                                                    </div>
-                                                    <button type="submit" class="w-full bg-cyan-500 text-white font-bold py-4 rounded-xl text-[10px] uppercase tracking-[0.4em] hover:bg-white hover:text-cyan-500 transition-all shadow-2xl">
-                                                        Unlock Story &bull; Ksh {{ number_format($post->price) }}
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        @else
-                                            <a href="{{ route('login') }}" class="inline-block mt-8 bg-white text-gray-900 font-bold px-12 py-4 rounded-xl text-[10px] uppercase tracking-[0.4em] hover:bg-cyan-500 hover:text-white transition-all shadow-2xl">
-                                                Login to Purchase
-                                            </a>
-                                        @endauth
+                            @else
+                                <form action="{{ route('payment.initiate', $post) }}" method="POST"
+                                      x-data="{ loading: false }" @submit="loading = true">
+                                    @csrf
+                                    <div class="mb-4">
+                                        <input type="text" name="phone_number"
+                                               placeholder="254712345678"
+                                               pattern="254[0-9]{9}" maxlength="12"
+                                               class="w-full border border-gray-200 rounded-xl px-4 py-3 text-center text-sm font-mono tracking-wider focus:outline-none focus:ring-2 focus:ring-cyan-500/30 focus:border-cyan-500 transition placeholder:text-gray-300"
+                                               required x-bind:disabled="loading">
+                                        <p class="text-[10px] text-gray-400 mt-2">M-Pesa format: 254XXXXXXXXX</p>
                                     </div>
-                                </div>
-                            </div>
-                        @endif
-                    </div>
-
-                    <div class="mt-16 border-t border-gray-100 pt-16 text-center">
-                        <a href="{{ route('blog.index') }}" class="text-[10px] font-bold uppercase tracking-[0.4em] text-cyan-500 hover:text-gray-900 transition">
-                            &larr; Discover more stories
-                        </a>
+                                    <button type="submit" x-bind:disabled="loading"
+                                            class="w-full bg-gray-900 text-white font-bold py-3 rounded-xl text-sm hover:bg-cyan-600 transition-colors disabled:opacity-50">
+                                        <span x-show="!loading">Unlock · Ksh {{ number_format($post->price) }}</span>
+                                        <span x-show="loading" x-cloak class="inline-flex items-center space-x-2">
+                                            <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            <span>Processing…</span>
+                                        </span>
+                                    </button>
+                                </form>
+                            @endif
+                        @else
+                            <a href="{{ route('login') }}"
+                               class="inline-block w-full bg-gray-900 text-white font-bold py-3 rounded-xl text-sm hover:bg-cyan-600 transition-colors">
+                                Sign in to Unlock
+                            </a>
+                        @endauth
                     </div>
                 </div>
-            </article>
-        </main>
+            </div>
+        @endif
+    </div>
 
-        <footer class="py-16 text-center text-gray-400 text-[10px] font-bold tracking-[0.3em] uppercase">
-            &copy; {{ date('Y') }} Blog Theme. Crafted for Creatives.
-        </footer>
+    {{-- Back link --}}
+    <div class="mt-12 pt-8 border-t border-gray-100">
+        <a href="{{ route('blog.index') }}"
+           class="inline-flex items-center text-sm font-medium text-gray-500 hover:text-cyan-600 transition-colors group">
+            <svg class="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
+            </svg>
+            Back to all stories
+        </a>
+    </div>
+</article>
 
-        <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
-    </body>
-</html>
+@endsection

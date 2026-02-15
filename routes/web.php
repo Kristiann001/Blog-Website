@@ -32,6 +32,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
 
 // Blog Routes
 Route::get('/', [\App\Http\Controllers\BlogController::class, 'index'])->name('blog.index');
+Route::get('/help', fn () => view('help'))->name('help');
 Route::get('/blog/{slug}', [\App\Http\Controllers\BlogController::class, 'show'])->name('blog.show');
 
 Route::post('/blog/{post}/purchase', [\App\Http\Controllers\PaymentController::class, 'initiate'])

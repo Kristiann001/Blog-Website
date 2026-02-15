@@ -12,8 +12,8 @@
     </x-slot>
 
     <div class="py-12 bg-gray-50/30">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
                 <!-- Profile & Stats -->
                 <div class="bg-white/80 backdrop-blur-xl border border-white/20 overflow-hidden shadow-2xl rounded-3xl p-8 relative">
                     <div class="absolute top-0 right-0 p-4">
@@ -60,10 +60,10 @@
 
                 @if(auth()->user()->role === 'admin')
                     <!-- Admin Quick Controls -->
-                    <div class="md:col-span-2 bg-gray-900 text-white overflow-hidden shadow-2xl rounded-3xl p-8 relative group">
+                    <div class="lg:col-span-2 bg-gray-900 text-white overflow-hidden shadow-2xl rounded-3xl p-8 relative group">
                         <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent"></div>
                         <h3 class="brand-font text-xl font-bold mb-6 relative z-10">{{ __('Editorial Controls') }}</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
                             <a href="{{ route('admin.posts.index') }}" class="glass p-6 rounded-2xl hover:bg-white/10 transition group border border-white/5">
                                 <i class="fas fa-feather-pointed text-2xl text-cyan-400 mb-4"></i>
                                 <h4 class="text-sm font-bold uppercase tracking-widest mb-1">Manage Stories</h4>
@@ -78,7 +78,7 @@
                     </div>
                 @else
                     <!-- Customer Purchased Content -->
-                    <div class="md:col-span-2 bg-white/60 backdrop-blur-md overflow-hidden shadow-xl border border-gray-100 rounded-3xl p-8">
+                    <div class="lg:col-span-2 bg-white/60 backdrop-blur-md overflow-hidden shadow-xl border border-gray-100 rounded-3xl p-8">
                         <h3 class="brand-font text-xl font-bold mb-6 text-gray-900">{{ __('Your Exclusive Library') }}</h3>
                         @php
                             $purchased = auth()->user()->payments()->where('status', 'completed')->with('post')->get();

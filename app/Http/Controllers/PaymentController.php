@@ -24,17 +24,35 @@ class PaymentController extends Controller
         }
 
         $request->validate([
-            'phone_number' => 'required|numeric|digits:12', // Format: 2547...
+            'phone_number' => [
+                'required',
+                'regex:/^254[0-9]{9}$/',
+            ],
+        ], [
+            'phone_number.required' => 'Please enter your M-Pesa phone number.',
+            'phone_number.regex' => 'Phone number must be in format 254XXXXXXXXX (12 digits).',
         ]);
+
+        // Check if user already purchased
+        if (auth()->user()->hasPurchased($post)) {
+            return back()->with('success', 'You already have access to this content!');
+        }
 
         $phoneNumber = $request->phone_number;
         $amount = $post->price;
-        $callbackUrl = url('/api/payment/callback'); // Publicly accessible URL
-        $reference = 'PL' . $post->id . 'U' . auth()->id();
+        $callbackUrl = url('/api/payment/callback');
+        $reference = 'POST' . $post->id . 'USER' . auth()->id() . time();
+
+        Log::info('Initiating M-Pesa payment', [
+            'user_id' => auth()->id(),
+            'post_id' => $post->id,
+            'amount' => $amount,
+            'phone' => $phoneNumber,
+        ]);
 
         $response = $this->mpesaService->stkPush($phoneNumber, $amount, $callbackUrl, $reference);
 
-        if ($response && $response->ResponseCode == "0") {
+        if ($response && isset($response->ResponseCode) && $response->ResponseCode == "0") {
             Payment::create([
                 'user_id' => auth()->id(),
                 'post_id' => $post->id,
@@ -44,10 +62,14 @@ class PaymentController extends Controller
                 'phone_number' => $phoneNumber,
             ]);
 
-            return back()->with('success', 'Payment initiated. Please check your phone for the STK push.');
+            Log::info('M-Pesa STK Push successful', ['checkout_id' => $response->CheckoutRequestID]);
+
+            return back()->with('success', 'Payment initiated! Please check your phone for the M-Pesa prompt and enter your PIN.');
         }
 
-        return back()->with('error', 'Failed to initiate payment. Please try again.');
+        Log::error('M-Pesa STK Push failed', ['response' => $response]);
+
+        return back()->with('error', 'Failed to initiate payment. Please check your phone number and try again.');
     }
 
     public function callback(Request $request)
