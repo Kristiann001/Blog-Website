@@ -76,5 +76,6 @@
                 @endif
             </main>
         </div>
+        @yield('scripts')
     </body>
 </html>

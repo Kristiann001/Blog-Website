@@ -16,7 +16,11 @@ class MpesaService
 
     public function __construct()
     {
-        $this->client = new Client();
+        $this->client = new Client([
+            'headers' => [
+                'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            ]
+        ]);
         $this->consumerKey = config('services.mpesa.key');
         $this->consumerSecret = config('services.mpesa.secret');
         $this->shortcode = config('services.mpesa.shortcode');
@@ -57,7 +61,7 @@ class MpesaService
             'Password' => $password,
             'Timestamp' => $timestamp,
             'TransactionType' => 'CustomerPayBillOnline',
-            'Amount' => $amount,
+            'Amount' => (int) $amount,
             'PartyA' => $phoneNumber,
             'PartyB' => $this->shortcode,
             'PhoneNumber' => $phoneNumber,
@@ -75,8 +79,50 @@ class MpesaService
             ]);
 
             return json_decode($response->getBody());
-        } catch (\Exception $e) {
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $responseBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : 'No response';
             Log::error('M-Pesa STK Push Error: ' . $e->getMessage());
+            Log::error('M-Pesa STK Push Response Body: ' . $responseBody);
+            Log::error('M-Pesa STK Push Request Body: ' . json_encode($body));
+            return null;
+        } catch (\Exception $e) {
+            Log::error('M-Pesa STK Push Generic Error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    public function stkPushQuery($checkoutRequestId)
+    {
+        $token = $this->getAccessToken();
+        if (!$token) return null;
+
+        $timestamp = date('YmdHis');
+        $password = base64_encode($this->shortcode . $this->passkey . $timestamp);
+
+        $body = [
+            'BusinessShortCode' => $this->shortcode,
+            'Password' => $password,
+            'Timestamp' => $timestamp,
+            'CheckoutRequestID' => $checkoutRequestId
+        ];
+
+        try {
+            $response = $this->client->post($this->baseUrl . '/mpesa/stkpushquery/v1/query', [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                ],
+                'json' => $body
+            ]);
+
+            $responseData = json_decode($response->getBody());
+            Log::info('M-Pesa STK Push Query Response: ' . json_encode($responseData));
+            return $responseData;
+        } catch (\GuzzleHttp\Exception\ClientException $e) {
+            $responseBody = $e->hasResponse() ? $e->getResponse()->getBody()->getContents() : 'No response';
+            Log::error('M-Pesa STK Push Query Client Error: ' . $responseBody);
+            return json_decode($responseBody);
+        } catch (\Exception $e) {
+            Log::error('M-Pesa STK Push Query Error: ' . $e->getMessage());
             return null;
         }
     }
