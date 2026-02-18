@@ -76,6 +76,11 @@ class PaymentController extends Controller
 
     public function initiateApi(Request $request)
     {
+        // Require authentication
+        if (!auth()->check()) {
+            return response()->json(['success' => false, 'message' => 'Please log in to make a purchase.'], 401);
+        }
+
         $request->validate([
             'phone_number' => [
                 'required',
@@ -85,12 +90,20 @@ class PaymentController extends Controller
         ]);
 
         $post = Post::find($request->post_id);
+        $user = auth()->user();
+
+        // Check if already purchased
+        if ($user->hasPurchased($post)) {
+            return response()->json(['success' => false, 'message' => 'You already have access to this content!']);
+        }
+
         $phoneNumber = $request->phone_number;
         $amount = $post->price;
         $callbackUrl = env('MPESA_CALLBACK_URL', url('/api/payment/callback'));
-        $reference = 'POST' . $post->id . 'API' . time();
+        $reference = 'POST' . $post->id . 'USER' . $user->id . time();
 
         Log::info('Initiating API M-Pesa payment', [
+            'user_id' => $user->id,
             'post_id' => $post->id,
             'amount' => $amount,
             'phone' => $phoneNumber,
@@ -100,7 +113,7 @@ class PaymentController extends Controller
 
         if ($response && isset($response->ResponseCode) && $response->ResponseCode == "0") {
             Payment::create([
-                'user_id' => $request->user_id ?? auth()->id() ?? 1,
+                'user_id' => $user->id,
                 'post_id' => $post->id,
                 'amount' => $amount,
                 'status' => 'pending',
@@ -160,33 +173,49 @@ class PaymentController extends Controller
             return response()->json(['status' => 'not_found'], 404);
         }
 
-        // If pending, try to query Safaricom directly (especially useful for localhost)
-        if ($payment->status === 'pending') {
+        // If already resolved, return immediately — no need to query Safaricom
+        if (in_array($payment->status, ['completed', 'failed'])) {
+            return response()->json([
+                'status'  => $payment->status,
+                'receipt' => $payment->mpesa_receipt_number,
+            ]);
+        }
+
+        // For pending payments: try the Safaricom query API only if the payment
+        // was created within the last 5 minutes (avoids hammering the API forever)
+        // and only if we haven't already tried recently (tracked via updated_at).
+        $ageSeconds = now()->diffInSeconds($payment->created_at);
+        $lastCheckSeconds = now()->diffInSeconds($payment->updated_at);
+
+        // Only query Safaricom if: payment < 5 min old AND last check was > 20s ago
+        if ($ageSeconds < 300 && $lastCheckSeconds >= 20) {
             $response = $this->mpesaService->stkPushQuery($checkoutRequestId);
-            
+
             if ($response && isset($response->ResultCode)) {
                 if ($response->ResultCode == "0") {
                     $payment->update([
-                        'status' => 'completed',
+                        'status'               => 'completed',
                         'mpesa_receipt_number' => $response->ResultDesc ?? 'Success',
                     ]);
                     Log::info('Payment Completed via Query: ' . $checkoutRequestId);
-                } elseif (in_array($response->ResultCode, ['1032', '1037', '2001', '1'])) {
-                    // 1032: Cancelled by user
-                    // 1037: DS timeout
-                    // 2001: Invalid initiator credentials
-                    // 1: Internal error
+                } elseif (in_array((string)$response->ResultCode, ['1032', '1037', '2001', '1', '1031', '9999'])) {
                     $payment->update(['status' => 'failed']);
                     Log::info('Payment Failed via Query: ' . $checkoutRequestId . ' Code: ' . $response->ResultCode);
                 } else {
-                    // Other codes like 4999 are often transient or "not found yet"
-                    Log::info('Payment still processing or transient code: ' . $checkoutRequestId . ' Code: ' . $response->ResultCode);
+                    // Transient / still processing — touch updated_at to throttle next check
+                    $payment->touch();
+                    Log::info('Payment still processing: ' . $checkoutRequestId . ' Code: ' . $response->ResultCode);
                 }
+            } else {
+                // API unavailable (e.g. 403) — touch to throttle, don't crash
+                $payment->touch();
             }
+
+            $payment->refresh();
         }
 
         return response()->json([
-            'status' => $payment->status,
+            'status'  => $payment->status,
             'receipt' => $payment->mpesa_receipt_number,
         ]);
     }
