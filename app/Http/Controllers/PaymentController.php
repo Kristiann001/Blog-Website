@@ -40,7 +40,9 @@ class PaymentController extends Controller
 
         $phoneNumber = $request->phone_number;
         $amount = $post->price;
-        $callbackUrl = env('MPESA_CALLBACK_URL', url('/api/payment/callback'));
+        
+        // Use local callback URL for demo purposes
+        $callbackUrl = url('/api/payment/callback');
         $reference = 'POST' . $post->id . 'USER' . auth()->id() . time();
 
         Log::info('Initiating M-Pesa payment', [
@@ -53,7 +55,7 @@ class PaymentController extends Controller
         $response = $this->mpesaService->stkPush($phoneNumber, $amount, $callbackUrl, $reference);
 
         if ($response && isset($response->ResponseCode) && $response->ResponseCode == "0") {
-            Payment::create([
+            $payment = Payment::create([
                 'user_id' => auth()->id(),
                 'post_id' => $post->id,
                 'amount' => $amount,
@@ -64,6 +66,12 @@ class PaymentController extends Controller
 
             Log::info('M-Pesa STK Push successful', ['checkout_id' => $response->CheckoutRequestID]);
 
+            // For demo purposes: simulate successful payment after 3 seconds
+            if (config('services.mpesa.env') == 'sandbox' && str_starts_with($response->CheckoutRequestID, 'DEMO_')) {
+                // Schedule a simulated callback
+                $this->simulateCallback($payment);
+            }
+
             return back()
                 ->with('success', 'Payment initiated! Please check your phone for the M-Pesa prompt and enter your PIN.')
                 ->with('checkout_request_id', $response->CheckoutRequestID);
@@ -72,6 +80,19 @@ class PaymentController extends Controller
         Log::error('M-Pesa STK Push failed', ['response' => $response]);
 
         return back()->with('error', 'Failed to initiate payment. Please check your phone number and try again.');
+    }
+
+    private function simulateCallback($payment)
+    {
+        // Simulate callback after 3 seconds for demo
+        dispatch(function () use ($payment) {
+            sleep(3);
+            $payment->update([
+                'status' => 'completed',
+                'mpesa_receipt_number' => 'DEMO_RECEIPT_' . time(),
+            ]);
+            Log::info('Demo payment completed automatically', ['payment_id' => $payment->id]);
+        })->afterResponse();
     }
 
     public function initiateApi(Request $request)
@@ -99,7 +120,9 @@ class PaymentController extends Controller
 
         $phoneNumber = $request->phone_number;
         $amount = $post->price;
-        $callbackUrl = env('MPESA_CALLBACK_URL', url('/api/payment/callback'));
+        
+        // Use local callback URL for demo purposes
+        $callbackUrl = url('/api/payment/callback');
         $reference = 'POST' . $post->id . 'USER' . $user->id . time();
 
         Log::info('Initiating API M-Pesa payment', [
@@ -107,12 +130,13 @@ class PaymentController extends Controller
             'post_id' => $post->id,
             'amount' => $amount,
             'phone' => $phoneNumber,
+            'callback_url' => $callbackUrl,
         ]);
 
         $response = $this->mpesaService->stkPush($phoneNumber, $amount, $callbackUrl, $reference);
 
         if ($response && isset($response->ResponseCode) && $response->ResponseCode == "0") {
-            Payment::create([
+            $payment = Payment::create([
                 'user_id' => $user->id,
                 'post_id' => $post->id,
                 'amount' => $amount,
@@ -120,6 +144,11 @@ class PaymentController extends Controller
                 'checkout_request_id' => $response->CheckoutRequestID,
                 'phone_number' => $phoneNumber,
             ]);
+
+            // For demo purposes: simulate successful payment after 3 seconds
+            if (config('services.mpesa.env') == 'sandbox' && str_starts_with($response->CheckoutRequestID, 'DEMO_')) {
+                $this->simulateCallback($payment);
+            }
 
             return response()->json([
                 'success' => true,

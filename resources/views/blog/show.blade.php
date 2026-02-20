@@ -109,7 +109,10 @@
                 {!! nl2br(e($post->content)) !!}
             </div>
         @else
-            <div class="mt-2 p-6 border border-dashed border-amber-400 rounded-xl bg-amber-50">
+            {{-- Teaser content --}}
+            {!! nl2br(e(Str::limit($post->content, 400))) !!}
+
+            <div class="mt-8 p-6 border border-dashed border-amber-400 rounded-xl bg-amber-50">
                 <h3 class="text-lg font-semibold mb-4 text-amber-800">Unlock full story for Ksh {{ number_format($post->price) }}</h3>
                 
                 <form id="mpesa-form" class="space-y-4">
@@ -156,117 +159,99 @@
 
 @section('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function () {
-    const payBtn          = document.getElementById('pay-button');
-    const phoneInput      = document.getElementById('phone_number');
-    const messageDiv      = document.getElementById('status-message');
-    const form            = document.getElementById('mpesa-form');
-    const postId          = {{ $post->id }};
-    let pollingTimer      = null;
-    let pollingStartTime  = null;
+document.addEventListener('DOMContentLoaded', () => {
+    const payBtn = document.getElementById('pay-button');
+    const phoneInput = document.getElementById('phone_number');
+    const messageDiv = document.getElementById('status-message');
+    const postId = "{{ $post->id }}";
+    let pollingInterval = null;
 
-    function setMessage(text, type = 'info') {  // info | success | error | warning
-        messageDiv.innerHTML = `<div class="p-3 rounded-lg text-center font-medium
-            ${type === 'success' ? 'bg-green-100 text-green-800' : ''}
-            ${type === 'error'   ? 'bg-red-100   text-red-800'   : ''}
-            ${type === 'warning' ? 'bg-yellow-100 text-yellow-800' : 'bg-blue-50 text-blue-800'}">
-            ${text}
-        </div>`;
+    function showMessage(html, type = 'info') {
+        messageDiv.innerHTML = `<p class="text-${type === 'success' ? 'green' : type === 'error' ? 'red' : 'amber'}-600">${html}</p>`;
+        // Also show as toast
+        const message = html.replace(/<[^>]*>/g, ''); // Strip HTML for toast
+        showToast(message, type);
     }
 
     function startPolling(checkoutRequestId) {
-        if (pollingTimer) clearInterval(pollingTimer);
+        if (pollingInterval) clearInterval(pollingInterval);
 
-        setMessage('Payment request sent! Please check your phone and enter your PIN.', 'info');
+        showMessage('✅ STK Push sent! Check your phone and enter PIN...', 'info');
         payBtn.disabled = true;
-        document.getElementById('button-text').textContent = 'Processing – check your phone';
+        document.getElementById('button-text').textContent = 'Waiting for payment...';
 
-        pollingStartTime = Date.now();
-
-        pollingTimer = setInterval(async () => {
-            // Safety timeout: stop after ~4 minutes
-            if (Date.now() - pollingStartTime > 240000) {
-                clearInterval(pollingTimer);
-                setMessage('Payment check timed out. Please refresh the page or contact support.', 'warning');
-                resetButton();
-                return;
-            }
-
-            try {
-                const response = await fetch(`/api/payment/status/${checkoutRequestId}`);
-                const data = await response.json();
-
-                if (data.status === 'completed') {
-                    clearInterval(pollingTimer);
-                    setMessage('✅ Payment successful! Loading full content...', 'success');
-                    // Small delay → then reload (gives nice UX feedback)
-                    setTimeout(() => location.reload(), 1200);
-                }
-                else if (data.status === 'failed') {
-                    clearInterval(pollingTimer);
-                    setMessage('❌ Payment failed or was cancelled.<br>You can try again.', 'error');
-                    resetButton();
-                }
-                // else → still pending / processing → keep polling silently
-            } catch (err) {
-                console.error('Polling error:', err);
-                // Don't stop polling on network glitch – retry next interval
-            }
-        }, 4000);   // every 4 seconds – reasonable balance
-    }
-
-    function resetButton() {
-        payBtn.disabled = false;
-        document.getElementById('button-text').textContent = `Pay Ksh {{{ number_format($post->price) }}} with M-Pesa`;
-    }
-
-    // === Pay button handler ===
-    if (payBtn) {
-        payBtn.addEventListener('click', async () => {
-            const phone = phoneInput.value.trim().replace(/\s/g, '');
-
-            if (!phone.match(/^254[0-9]{9}$/)) {
-                setMessage('Please enter a valid phone number (254XXXXXXXXX)', 'error');
-                return;
-            }
-
-            setMessage('Initiating payment...', 'info');
-            payBtn.disabled = true;
-            document.getElementById('button-text').textContent = 'Initiating...';
-
-            try {
-                const res = await fetch('/api/payment/initiate', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                    },
-                    body: JSON.stringify({
-                        phone_number: phone,
-                        post_id: postId,
-                    })
+        pollingInterval = setInterval(() => {
+            fetch(`/api/payment/status/${checkoutRequestId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'completed') {
+                        clearInterval(pollingInterval);
+                        showMessage('🎉 Payment successful! Unlocking content...', 'success');
+                        setTimeout(() => window.location.reload(), 1200);
+                    } 
+                    else if (data.status === 'failed') {
+                        clearInterval(pollingInterval);
+                        showMessage('❌ Payment was cancelled or failed.<br>Please try again.', 'error');
+                        payBtn.disabled = false;
+                        document.getElementById('button-text').textContent = 'Try Again – Pay with M-Pesa';
+                    }
+                    // else still pending → keep polling
+                })
+                .catch(() => {
+                    // silent fail, continue polling
                 });
-
-                const data = await res.json();
-
-                if (data.success && data.checkout_request_id) {
-                    startPolling(data.checkout_request_id);
-                } else {
-                    setMessage(data.message || 'Could not start payment. Try again.', 'error');
-                    resetButton();
-                }
-            } catch (err) {
-                setMessage('Network error – please check your connection.', 'error');
-                resetButton();
-            }
-        });
+        }, 4000); // poll every 4 seconds
     }
 
-    // === Auto-resume polling if page reloaded after initiation ===
+    // Pay button click
+    payBtn.addEventListener('click', () => {
+        const phone = phoneInput.value.trim();
+
+        if (!/^254[0-9]{9}$/.test(phone)) {
+            showMessage('❌ Phone number must be in format 254XXXXXXXXX', 'error');
+            return;
+        }
+
+        payBtn.disabled = true;
+        document.getElementById('button-text').textContent = 'Initiating M-Pesa...';
+
+        fetch('/api/payment/initiate', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                phone_number: phone,
+                post_id: postId
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                startPolling(data.checkout_request_id);
+            } else {
+                showMessage(data.message || 'Failed to initiate payment', 'error');
+                payBtn.disabled = false;
+                document.getElementById('button-text').textContent = 'Pay with M-Pesa';
+            }
+        })
+        .catch(() => {
+            showMessage('Network error. Please check your connection.', 'error');
+            payBtn.disabled = false;
+            document.getElementById('button-text').textContent = 'Pay with M-Pesa';
+        });
+    });
+
+    // If page was reloaded after successful initiation (fallback)
     @if(session('checkout_request_id'))
-        startPolling('{{ session('checkout_request_id') }}');
+        startPolling('{{ session("checkout_request_id") }}');
     @endif
+
+    // Initialize toast system
+    if (typeof showToast !== 'undefined') {
+        console.log('Toast system initialized');
+    }
 });
 </script>
 @endsection
